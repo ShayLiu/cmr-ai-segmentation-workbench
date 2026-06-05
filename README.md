@@ -48,11 +48,13 @@ The project is not a clinical model and does not include private patient data, t
 
 ![Completed debug runs](docs/assets/debug_runs_summary.svg)
 
-## Public Dataset Overlay Example
+## SAX Segmentation QC
 
-The image below uses a public Medical Segmentation Decathlon Cardiac sample. It is included only as a visual example of the segmentation workflow and is not private patient data.
+The local CorSeg SAX pseudo-label run proves that the data conversion and nnU-Net workflow can run end to end, but its boundaries are not accurate enough to present as a segmentation result. This repository therefore treats pseudo-label output as a quality-control and workflow-validation artifact only.
 
-![Public MSD Cardiac overlay example](docs/assets/msd_cardiac_overlay_example.png)
+![SAX segmentation quality gate](docs/assets/segmentation_qc_gate.svg)
+
+Publication-grade SAX LV/RV figures should come from expert-labeled data or a public benchmark such as ACDC, with structure-wise Dice and HD95 reported before any visual showcase.
 
 ## Goals
 
@@ -172,4 +174,4 @@ This workbench builds around excellent open-source medical AI projects:
 - MedSAM: https://github.com/bowang-lab/MedSAM
 - TorchIO: https://github.com/TorchIO-project/torchio
 
-The public overlay preview uses a derived visualization from the Medical Segmentation Decathlon Cardiac dataset. Please cite the MSD paper when using that dataset.
+The local SAX pseudo-label workflow is included to test conversion, preprocessing, training, and privacy boundaries. It should not be cited as evidence of model performance until expert-labeled validation is added.

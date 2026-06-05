@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="420" viewBox="0 0 1180 420" role="img" aria-label="SAX segmentation quality gate">
+  <rect width="1180" height="420" rx="18" fill="#fbfcfd"/>
+  <text x="42" y="54" fill="#163244" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">SAX Segmentation Quality Gate</text>
+  <text x="42" y="86" fill="#526570" font-family="Inter, Arial, sans-serif" font-size="17">Pseudo-labels can validate the pipeline, but expert-labeled SAX benchmarks are required before claiming segmentation quality.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <g transform="translate(52 126)">
+      <rect width="250" height="170" rx="14" fill="#eaf3f5" stroke="#b6ccd4"/>
+      <text x="22" y="38" fill="#173244" font-size="21" font-weight="700">Current</text>
+      <text x="22" y="76" fill="#526570" font-size="16">Workflow runs end to end</text>
+      <text x="22" y="106" fill="#526570" font-size="16">Pseudo-label debug only</text>
+      <text x="22" y="136" fill="#9a5d18" font-size="16" font-weight="700">Not a performance claim</text>
+    </g>
+    <g transform="translate(354 126)">
+      <rect width="250" height="170" rx="14" fill="#fff5e8" stroke="#dec6a3"/>
+      <text x="22" y="38" fill="#173244" font-size="21" font-weight="700">Reject</text>
+      <text x="22" y="76" fill="#526570" font-size="16">Poor boundary adherence</text>
+      <text x="22" y="106" fill="#526570" font-size="16">Unreviewed RV contours</text>
+      <text x="22" y="136" fill="#a94442" font-size="16" font-weight="700">No homepage showcase</text>
+    </g>
+    <g transform="translate(656 126)">
+      <rect width="250" height="170" rx="14" fill="#edf4ea" stroke="#b6ccb1"/>
+      <text x="22" y="38" fill="#173244" font-size="21" font-weight="700">Required</text>
+      <text x="22" y="76" fill="#526570" font-size="16">ACDC / expert SAX labels</text>
+      <text x="22" y="106" fill="#526570" font-size="16">Dice + HD95 by structure</text>
+      <text x="22" y="136" fill="#1f7a62" font-size="16" font-weight="700">Then publish visuals</text>
+    </g>
+    <g transform="translate(958 126)">
+      <rect width="170" height="170" rx="14" fill="#eef1fb" stroke="#bac3e2"/>
+      <text x="22" y="38" fill="#173244" font-size="21" font-weight="700">Labels</text>
+      <circle cx="32" cy="75" r="7" fill="#3b8ff0"/>
+      <text x="50" y="81" fill="#526570" font-size="15">RV</text>
+      <circle cx="32" cy="106" r="7" fill="#f3b43f"/>
+      <text x="50" y="112" fill="#526570" font-size="15">LV blood</text>
+      <circle cx="32" cy="137" r="7" fill="#e94a54"/>
+      <text x="50" y="143" fill="#526570" font-size="15">Myo</text>
+    </g>
+  </g>
+  <text x="52" y="358" fill="#5b6c76" font-family="Inter, Arial, sans-serif" font-size="16">Publication-grade claim threshold: expert-reviewed contours, held-out validation, structure-wise metrics, and representative success/failure examples.</text>
+</svg>
