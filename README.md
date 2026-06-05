@@ -84,8 +84,8 @@ Publication-grade SAX LV/RV figures should come from expert-labeled data or a pu
 | 2 | Public MSD Cardiac debug training | Done |
 | 3 | Local CorSeg SAX pseudo-label debug training | Done |
 | 4 | nnU-Net v2 ACDC baseline training | Planned |
-| 5 | Dice / HD95 evaluation script | Planned |
-| 6 | Prediction visualization examples | Planned |
+| 5 | Dice / HD95 evaluation script | Script ready |
+| 6 | Prediction visualization examples | Script ready |
 | 7 | MONAI baseline | Planned |
 | 8 | MedSAM adaptation example | Planned |
 | 9 | CMR research template for papers | Planned |
@@ -111,6 +111,10 @@ export nnUNet_results=/path/to/nnUNet_results
 Prepare and train:
 
 ```bash
+python scripts/prepare_acdc.py \
+  --source /path/to/acdc_raw \
+  --output "$nnUNet_raw/Dataset001_ACDC"
+
 DATASET_ID=1 CONFIG=2d FOLD=0 DEVICE=cuda bash scripts/train_nnunet_acdc.sh
 ```
 
@@ -118,6 +122,22 @@ Predict:
 
 ```bash
 bash scripts/predict_nnunet_acdc.sh
+```
+
+Evaluate and create a QC overlay:
+
+```bash
+python scripts/evaluate_segmentation.py \
+  --pred-dir predictions/acdc_nnunet_2d_fold0 \
+  --label-dir "$nnUNet_raw/Dataset001_ACDC/labelsTr" \
+  --out-csv results/acdc_metrics.csv \
+  --out-md results/acdc_metrics.md
+
+python scripts/visualize_segmentation.py \
+  --image "$nnUNet_raw/Dataset001_ACDC/imagesTr/patient001_frame01_0000.nii.gz" \
+  --label "$nnUNet_raw/Dataset001_ACDC/labelsTr/patient001_frame01.nii.gz" \
+  --prediction predictions/acdc_nnunet_2d_fold0/patient001_frame01.nii.gz \
+  --output results/figures/acdc_patient001_frame01_overlay.png
 ```
 
 ## Repository Structure
@@ -134,6 +154,8 @@ cmr-ai-segmentation-workbench/
 ├── results/
 └── scripts/
     ├── prepare_acdc.py
+    ├── evaluate_segmentation.py
+    ├── visualize_segmentation.py
     ├── train_nnunet_acdc.sh
     └── predict_nnunet_acdc.sh
 ```

@@ -26,6 +26,14 @@ nnUNet_raw/
 
 For single-modality cardiac MRI, the image suffix is usually `_0000.nii.gz`.
 
+ACDC files commonly use names like `patient001_frame01.nii.gz` and `patient001_frame01_gt.nii.gz`. Run `scripts/prepare_acdc.py` to copy them into nnU-Net naming:
+
+```bash
+python scripts/prepare_acdc.py \
+  --source /absolute/path/to/acdc_raw \
+  --output "$nnUNet_raw/Dataset001_ACDC"
+```
+
 ## Example `dataset.json`
 
 ```json
@@ -54,4 +62,3 @@ Before using private data:
 - Avoid uploading raw DICOM files.
 - Avoid uploading dates, names, accession numbers, institution names, or IDs.
 - Confirm local ethics and data sharing requirements.
-

@@ -27,22 +27,15 @@ export nnUNet_preprocessed=/absolute/path/to/nnUNet_preprocessed
 export nnUNet_results=/absolute/path/to/nnUNet_results
 ```
 
-## 3. Create Dataset Scaffold
+## 3. Convert ACDC to nnU-Net
 
 ```bash
 python scripts/prepare_acdc.py \
   --source /absolute/path/to/acdc_raw \
-  --output "$nnUNet_raw/Dataset001_ACDC" \
-  --num-training 100
+  --output "$nnUNet_raw/Dataset001_ACDC"
 ```
 
-Then copy or convert ACDC files into:
-
-```text
-$nnUNet_raw/Dataset001_ACDC/imagesTr
-$nnUNet_raw/Dataset001_ACDC/labelsTr
-$nnUNet_raw/Dataset001_ACDC/imagesTs
-```
+The converter looks for ACDC-style files such as `patient001_frame01.nii.gz` and `patient001_frame01_gt.nii.gz`, then writes `imagesTr`, `labelsTr`, `imagesTs`, and `dataset.json`.
 
 ## 4. Train
 
@@ -56,7 +49,31 @@ DATASET_ID=1 CONFIG=2d FOLD=0 bash scripts/train_nnunet_acdc.sh
 DATASET_ID=1 CONFIG=2d FOLD=0 bash scripts/predict_nnunet_acdc.sh
 ```
 
-## 6. Record Results
+## 6. Evaluate
+
+After prediction on a labeled validation folder, compute Dice and HD95:
+
+```bash
+python scripts/evaluate_segmentation.py \
+  --pred-dir predictions/acdc_nnunet_2d_fold0 \
+  --label-dir "$nnUNet_raw/Dataset001_ACDC/labelsTr" \
+  --out-csv results/acdc_metrics.csv \
+  --out-md results/acdc_metrics.md
+```
+
+## 7. Visual QC
+
+Create a representative overlay for expert review:
+
+```bash
+python scripts/visualize_segmentation.py \
+  --image "$nnUNet_raw/Dataset001_ACDC/imagesTr/patient001_frame01_0000.nii.gz" \
+  --label "$nnUNet_raw/Dataset001_ACDC/labelsTr/patient001_frame01.nii.gz" \
+  --prediction predictions/acdc_nnunet_2d_fold0/patient001_frame01.nii.gz \
+  --output results/figures/acdc_patient001_frame01_overlay.png
+```
+
+## 8. Record Results
 
 Update:
 
@@ -64,7 +81,7 @@ Update:
 results/acdc_nnunet_baseline.md
 ```
 
-Add metrics, screenshots, hardware, training time, and problems encountered.
+Add metrics, representative success/failure screenshots, hardware, training time, and problems encountered.
 
 ## Public MSD Cardiac Debug Run
 
