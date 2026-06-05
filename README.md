@@ -84,6 +84,7 @@ cmr-ai-segmentation-workbench/
 - This project is for research and education only, not clinical diagnosis.
 - For real training, use a CUDA GPU workstation or cloud instance. The local Codex sandbox can verify preprocessing, but it may block PyTorch shared-memory training.
 - Before publishing, run the privacy and reproducibility checks in [docs/release_checklist.md](docs/release_checklist.md).
+- For accurate community posts and project descriptions, see [docs/promotion_kit.md](docs/promotion_kit.md).
 
 ## Local Verification
 
