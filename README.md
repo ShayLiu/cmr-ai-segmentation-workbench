@@ -1,10 +1,32 @@
 # CMR AI Segmentation Workbench
 
-An open, reproducible workbench for cardiac MRI segmentation research.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](requirements.txt)
+[![nnU-Net](https://img.shields.io/badge/nnU--Net-v2-informational.svg)](https://github.com/MIC-DKFZ/nnUNet)
+[![Medical Data](https://img.shields.io/badge/private%20data-not%20included-critical.svg)](docs/model_and_data_statement.md)
+
+An open, privacy-conscious, reproducible workbench for cardiac MRI segmentation research.
 
 This project is designed for medical researchers, students, and engineers who want to train, evaluate, and document cardiac MRI segmentation models with reproducible workflows.
 
 The first milestones use nnU-Net v2 for synthetic smoke tests, public cardiac MRI debug runs, and local pseudo-label workflows. Later milestones add ACDC baselines, MONAI, MedSAM, visualization, metrics, and paper-ready outputs.
+
+## Why This Exists
+
+Cardiac MRI AI projects often spend more time on data formatting, DICOM/NIfTI conversion, nnU-Net folder structure, privacy checks, and result documentation than on the model itself.
+
+This repository aims to make that workflow explicit, teachable, and reusable.
+
+## Current Status
+
+| Workflow | Dataset type | Status | Notes |
+|---|---|---|---|
+| Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
+| MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
+| CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
+| ACDC baseline | Public benchmark | Planned | Next major reproducibility milestone |
+
+The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
 
 ## Goals
 
@@ -12,6 +34,18 @@ The first milestones use nnU-Net v2 for synthetic smoke tests, public cardiac MR
 - Provide clean scripts for data preparation, training, prediction, and evaluation.
 - Make medical imaging AI workflows easier for clinical researchers to understand and repeat.
 - Document common problems in DICOM/NIfTI conversion, dataset formatting, GPU setup, and segmentation evaluation.
+
+## Quick Links
+
+- [Quickstart](docs/quickstart.md)
+- [Data format guide](docs/data_format.md)
+- [Model and data statement](docs/model_and_data_statement.md)
+- [Release checklist](docs/release_checklist.md)
+- [Promotion kit](docs/promotion_kit.md)
+- [Launch plan](docs/launch_plan.md)
+- [Starter issues](docs/starter_issues.md)
+- [Changelog](CHANGELOG.md)
+- [Completed debug results](results/)
 
 ## Roadmap
 
