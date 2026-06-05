@@ -1,5 +1,7 @@
 # CMR AI Segmentation Workbench
 
+![CMR AI Segmentation Workbench banner](docs/assets/cmr_workbench_banner.svg)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](requirements.txt)
 [![nnU-Net](https://img.shields.io/badge/nnU--Net-v2-informational.svg)](https://github.com/MIC-DKFZ/nnUNet)
@@ -11,11 +13,27 @@ This project is designed for medical researchers, students, and engineers who wa
 
 The first milestones use nnU-Net v2 for synthetic smoke tests, public cardiac MRI debug runs, and local pseudo-label workflows. Later milestones add ACDC baselines, MONAI, MedSAM, visualization, metrics, and paper-ready outputs.
 
+![Workflow overview](docs/assets/workflow_overview.svg)
+
 ## Why This Exists
 
 Cardiac MRI AI projects often spend more time on data formatting, DICOM/NIfTI conversion, nnU-Net folder structure, privacy checks, and result documentation than on the model itself.
 
 This repository aims to make that workflow explicit, teachable, and reusable.
+
+## What You Can Do in 5 Minutes
+
+Create a tiny privacy-safe nnU-Net-style dataset and verify the project structure:
+
+```bash
+pip install -r requirements.txt
+python scripts/create_tiny_nnunet_dataset.py \
+  --output /tmp/nnunet_raw \
+  --dataset-id 901 \
+  --num-training 5
+```
+
+This does not require private medical data.
 
 ## Current Status
 
@@ -27,6 +45,14 @@ This repository aims to make that workflow explicit, teachable, and reusable.
 | ACDC baseline | Public benchmark | Planned | Next major reproducibility milestone |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
+
+![Completed debug runs](docs/assets/debug_runs_summary.svg)
+
+## Synthetic Overlay Example
+
+The image below is a generated, privacy-safe CMR-like example. It is not a patient scan.
+
+![Synthetic CMR overlay example](docs/assets/synthetic_overlay_example.png)
 
 ## Goals
 

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="360" viewBox="0 0 1180 360" role="img" aria-label="Workflow overview">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#35556b"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="360" rx="18" fill="#f7fbfc"/>
+  <text x="42" y="54" fill="#163244" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Reproducible CMR Segmentation Workflow</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="17" fill="#1d3446">
+    <g transform="translate(48 105)">
+      <rect width="160" height="132" rx="14" fill="#e7f0f2" stroke="#aec6cf"/>
+      <text x="22" y="40" font-weight="700">Input data</text>
+      <text x="22" y="72">Public CMR</text>
+      <text x="22" y="98">Local pseudo-labels</text>
+    </g>
+    <g transform="translate(268 105)">
+      <rect width="160" height="132" rx="14" fill="#edf4ea" stroke="#b6ccb1"/>
+      <text x="22" y="40" font-weight="700">Anonymize</text>
+      <text x="22" y="72">No PHI in Git</text>
+      <text x="22" y="98">Private manifest</text>
+    </g>
+    <g transform="translate(488 105)">
+      <rect width="160" height="132" rx="14" fill="#eef1fb" stroke="#bac3e2"/>
+      <text x="22" y="40" font-weight="700">nnU-Net format</text>
+      <text x="22" y="72">imagesTr</text>
+      <text x="22" y="98">labelsTr</text>
+    </g>
+    <g transform="translate(708 105)">
+      <rect width="160" height="132" rx="14" fill="#fbf2e6" stroke="#dec6a3"/>
+      <text x="22" y="40" font-weight="700">Train/debug</text>
+      <text x="22" y="72">tiny smoke test</text>
+      <text x="22" y="98">public baseline</text>
+    </g>
+    <g transform="translate(928 105)">
+      <rect width="160" height="132" rx="14" fill="#f7eaf0" stroke="#d7b5c5"/>
+      <text x="22" y="40" font-weight="700">Report</text>
+      <text x="22" y="72">metrics</text>
+      <text x="22" y="98">limits + artifacts</text>
+    </g>
+  </g>
+  <g stroke="#35556b" stroke-width="3" marker-end="url(#arrow)">
+    <line x1="214" y1="171" x2="258" y2="171"/>
+    <line x1="434" y1="171" x2="478" y2="171"/>
+    <line x1="654" y1="171" x2="698" y2="171"/>
+    <line x1="874" y1="171" x2="918" y2="171"/>
+  </g>
+  <text x="48" y="303" fill="#5b6c76" font-family="Inter, Arial, sans-serif" font-size="16">No private DICOM, NIfTI, checkpoints, or patient-level source manifests are distributed.</text>
+</svg>
