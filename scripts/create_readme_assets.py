@@ -12,6 +12,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
+from skimage import measure
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,20 +23,59 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text.strip() + "\n", encoding="utf-8")
 
 
-def create_banner() -> None:
+def load_public_msd_slice() -> tuple[np.ndarray, np.ndarray]:
+    image_path = ROOT / "data" / "msd-cardiac-hf" / "imagesTr" / "la_014.nii.gz"
+    label_path = ROOT / "data" / "msd-cardiac-hf" / "labelsTr" / "la_014.nii.gz"
+    if not image_path.exists() or not label_path.exists():
+        raise FileNotFoundError("Public MSD Cardiac sample not found. Run the MSD preparation workflow first.")
+
+    image_volume = nib.load(str(image_path)).get_fdata()
+    label_volume = nib.load(str(label_path)).get_fdata()
+    foreground_by_slice = (label_volume > 0).sum(axis=(0, 1))
+    z_index = int(np.argmax(foreground_by_slice))
+
+    image = normalize_image(image_volume[:, :, z_index])
+    label = (label_volume[:, :, z_index] > 0).astype(np.uint8)
+    image, label = crop_to_foreground(image, label, margin=58)
+    return image.T, label.T
+
+
+def image_to_data_uri(image: np.ndarray, label: np.ndarray) -> str:
+    import base64
+    from io import BytesIO
+
+    overlay = np.dstack([image, image, image])
+    mask = label > 0
+    color = np.array([0.97, 0.28, 0.32])
+    overlay[mask] = overlay[mask] * 0.55 + color * 0.45
+    fig, ax = plt.subplots(figsize=(3.4, 2.5), dpi=120)
+    ax.imshow(overlay, cmap="gray", vmin=0, vmax=1)
+    ax.set_axis_off()
+    fig.subplots_adjust(0, 0, 1, 1)
+    buf = BytesIO()
+    fig.savefig(buf, format="png", transparent=False)
+    plt.close(fig)
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+def create_banner(image: np.ndarray, label: np.ndarray) -> None:
+    preview_uri = image_to_data_uri(image, label)
     write_text(
         ASSET_DIR / "cmr_workbench_banner.svg",
-        """
+        f"""
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-label="CMR AI Segmentation Workbench banner">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#102033"/>
-      <stop offset="55%" stop-color="#17324a"/>
-      <stop offset="100%" stop-color="#0f3f42"/>
+      <stop offset="0%" stop-color="#08111f"/>
+      <stop offset="52%" stop-color="#13283a"/>
+      <stop offset="100%" stop-color="#103b43"/>
     </linearGradient>
     <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#07111d" flood-opacity="0.36"/>
     </filter>
+    <clipPath id="previewClip">
+      <rect x="0" y="0" width="310" height="228" rx="18"/>
+    </clipPath>
   </defs>
   <rect width="1280" height="360" fill="url(#bg)"/>
   <g opacity="0.18" stroke="#ffffff" stroke-width="1">
@@ -48,15 +88,11 @@ def create_banner() -> None:
     <path d="M900 0 V360"/>
     <path d="M1140 0 V360"/>
   </g>
-  <g transform="translate(835 63)" filter="url(#softShadow)">
-    <rect x="0" y="0" width="310" height="234" rx="20" fill="#081521" stroke="#b7d5df" stroke-opacity="0.34"/>
-    <rect x="24" y="22" width="262" height="190" rx="12" fill="#101b25"/>
-    <ellipse cx="156" cy="118" rx="93" ry="75" fill="#28323d"/>
-    <ellipse cx="132" cy="118" rx="43" ry="51" fill="#111923" stroke="#ff6b6b" stroke-width="14"/>
-    <ellipse cx="193" cy="118" rx="38" ry="47" fill="#101923" stroke="#4dabf7" stroke-width="13"/>
-    <ellipse cx="132" cy="118" rx="24" ry="30" fill="#ffd166" opacity="0.72"/>
-    <path d="M62 193 H252" stroke="#d6eef6" stroke-opacity="0.42" stroke-width="2"/>
-    <path d="M62 44 H252" stroke="#d6eef6" stroke-opacity="0.28" stroke-width="2"/>
+  <g transform="translate(832 64)" filter="url(#softShadow)">
+    <rect x="-16" y="-16" width="342" height="260" rx="24" fill="#07111d" stroke="#d6eef6" stroke-opacity="0.28"/>
+    <image href="{preview_uri}" x="0" y="0" width="310" height="228" preserveAspectRatio="xMidYMid slice" clip-path="url(#previewClip)"/>
+    <rect x="0" y="0" width="310" height="228" rx="18" fill="none" stroke="#d8f4ff" stroke-opacity="0.42"/>
+    <text x="22" y="205" fill="#e4f7fb" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Public MSD Cardiac preview</text>
   </g>
   <g transform="translate(84 78)">
     <text x="0" y="0" fill="#dff7ff" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="700">CMR AI Segmentation Workbench</text>
@@ -185,45 +221,61 @@ def crop_to_foreground(image: np.ndarray, label: np.ndarray, margin: int = 44) -
 
 
 def create_overlay() -> None:
-    image_path = ROOT / "data" / "msd-cardiac-hf" / "imagesTr" / "la_014.nii.gz"
-    label_path = ROOT / "data" / "msd-cardiac-hf" / "labelsTr" / "la_014.nii.gz"
-    if not image_path.exists() or not label_path.exists():
-        raise FileNotFoundError("Public MSD Cardiac sample not found. Run the MSD preparation workflow first.")
-
-    image_volume = nib.load(str(image_path)).get_fdata()
-    label_volume = nib.load(str(label_path)).get_fdata()
-    foreground_by_slice = (label_volume > 0).sum(axis=(0, 1))
-    z_index = int(np.argmax(foreground_by_slice))
-
-    image = normalize_image(image_volume[:, :, z_index])
-    label = (label_volume[:, :, z_index] > 0).astype(np.uint8)
-    image, label = crop_to_foreground(image, label)
+    image, label = load_public_msd_slice()
 
     overlay = np.dstack([image, image, image])
-    red = np.array([0.95, 0.18, 0.18])
+    red = np.array([0.97, 0.28, 0.32])
     mask = label > 0
-    overlay[mask] = overlay[mask] * 0.45 + red * 0.55
+    overlay[mask] = overlay[mask] * 0.55 + red * 0.45
 
-    fig, axes = plt.subplots(1, 3, figsize=(10.8, 3.6), dpi=180)
-    titles = ["Public MSD Cardiac MRI", "Left atrium label", "Label overlay"]
-    axes[0].imshow(image.T, cmap="gray", origin="lower", vmin=0, vmax=1)
-    axes[1].imshow(label.T, cmap="Reds", origin="lower", vmin=0, vmax=1)
-    axes[2].imshow(np.transpose(overlay, (1, 0, 2)), origin="lower")
-    for ax, title in zip(axes, titles):
-        ax.set_title(title, fontsize=10, color="#173244")
+    fig, axes = plt.subplots(1, 3, figsize=(12.8, 4.0), dpi=190)
+    fig.patch.set_facecolor("#0b1521")
+    titles = ["MRI", "Contour", "Overlay"]
+    for ax in axes:
+        ax.set_facecolor("#0b1521")
+        ax.imshow(image, cmap="gray", vmin=0, vmax=1)
         ax.set_xticks([])
         ax.set_yticks([])
         for spine in ax.spines.values():
             spine.set_visible(False)
-    fig.patch.set_facecolor("#fbfcfd")
-    plt.tight_layout(pad=1.4)
+
+    contours = measure.find_contours(label, level=0.5)
+    for contour in contours:
+        axes[1].plot(contour[:, 1], contour[:, 0], color="#ff5a64", linewidth=2.0)
+        axes[2].plot(contour[:, 1], contour[:, 0], color="#ffe1e4", linewidth=1.25, alpha=0.9)
+    axes[2].imshow(overlay)
+
+    for ax, title in zip(axes, titles):
+        ax.text(
+            0.04,
+            0.92,
+            title,
+            transform=ax.transAxes,
+            color="#edf8fb",
+            fontsize=13,
+            fontweight="bold",
+            ha="left",
+            va="top",
+            bbox={"facecolor": "#07111d", "alpha": 0.72, "edgecolor": "none", "boxstyle": "round,pad=0.35"},
+        )
+
+    fig.text(
+        0.5,
+        0.035,
+        "Public MSD Cardiac sample | left atrium segmentation preview | no private patient data",
+        color="#b8cbd3",
+        ha="center",
+        fontsize=10,
+    )
+    plt.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.12, wspace=0.035)
     fig.savefig(ASSET_DIR / "msd_cardiac_overlay_example.png", bbox_inches="tight")
     plt.close(fig)
 
 
 def main() -> None:
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
-    create_banner()
+    image, label = load_public_msd_slice()
+    create_banner(image, label)
     create_workflow()
     create_results_summary()
     create_overlay()
