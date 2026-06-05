@@ -1,0 +1,26 @@
+.venv/
+.cache/
+__pycache__/
+*.pyc
+*.py[cod]
+
+# nnU-Net workspaces and generated data
+nnunet_workspace/
+predictions/
+data/
+source_manifest_private.json
+*source_manifest_private.json
+
+# Large medical data and model artifacts
+*.nii
+*.nii.gz
+*.dcm
+*.ckpt
+*.pth
+*.pt
+*.npz
+
+# Local OS/editor files
+.DS_Store
+.idea/
+.vscode/

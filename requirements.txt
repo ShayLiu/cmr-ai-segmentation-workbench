@@ -1,0 +1,11 @@
+nnunetv2==2.7.0
+torch>=2.1.2
+torchvision
+SimpleITK>=2.2.1
+nibabel>=5.0
+numpy>=1.24
+scipy
+scikit-image
+scikit-learn
+matplotlib
+pandas
