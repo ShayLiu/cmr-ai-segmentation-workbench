@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Create privacy-safe README visuals from synthetic cardiac MRI-like data."""
+"""Create privacy-safe README visuals for the project.
+
+The overlay preview uses the public MSD Cardiac dataset when it is available
+locally. It does not use private patient data.
+"""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import nibabel as nib
 import numpy as np
 
 
@@ -160,41 +165,50 @@ def create_results_summary() -> None:
     )
 
 
+def normalize_image(image: np.ndarray) -> np.ndarray:
+    lo, hi = np.percentile(image, [1, 99])
+    image = np.clip(image, lo, hi)
+    return (image - lo) / max(hi - lo, 1e-6)
+
+
+def crop_to_foreground(image: np.ndarray, label: np.ndarray, margin: int = 44) -> tuple[np.ndarray, np.ndarray]:
+    coords = np.argwhere(label > 0)
+    if coords.size == 0:
+        return image, label
+    y0, x0 = coords.min(axis=0)
+    y1, x1 = coords.max(axis=0) + 1
+    y0 = max(int(y0) - margin, 0)
+    x0 = max(int(x0) - margin, 0)
+    y1 = min(int(y1) + margin, image.shape[0])
+    x1 = min(int(x1) + margin, image.shape[1])
+    return image[y0:y1, x0:x1], label[y0:y1, x0:x1]
+
+
 def create_overlay() -> None:
-    rng = np.random.default_rng(7)
-    size = 256
-    yy, xx = np.mgrid[-1:1:complex(size), -1:1:complex(size)]
-    body = np.exp(-((xx / 0.78) ** 2 + (yy / 0.72) ** 2) * 2.4)
-    coil = 0.18 * np.cos(8 * xx) * np.exp(-yy**2 * 1.6)
-    noise = rng.normal(0, 0.025, (size, size))
-    image = body + coil + noise
-    image = (image - image.min()) / (image.max() - image.min())
+    image_path = ROOT / "data" / "msd-cardiac-hf" / "imagesTr" / "la_014.nii.gz"
+    label_path = ROOT / "data" / "msd-cardiac-hf" / "labelsTr" / "la_014.nii.gz"
+    if not image_path.exists() or not label_path.exists():
+        raise FileNotFoundError("Public MSD Cardiac sample not found. Run the MSD preparation workflow first.")
 
-    lv_outer = ((xx + 0.18) / 0.25) ** 2 + ((yy + 0.02) / 0.33) ** 2 < 1
-    lv_inner = ((xx + 0.18) / 0.14) ** 2 + ((yy + 0.02) / 0.21) ** 2 < 1
-    rv = ((xx - 0.22) / 0.23) ** 2 + ((yy + 0.01) / 0.30) ** 2 < 1
-    myo = lv_outer & ~lv_inner
+    image_volume = nib.load(str(image_path)).get_fdata()
+    label_volume = nib.load(str(label_path)).get_fdata()
+    foreground_by_slice = (label_volume > 0).sum(axis=(0, 1))
+    z_index = int(np.argmax(foreground_by_slice))
 
-    labels = np.zeros((size, size), dtype=np.uint8)
-    labels[myo] = 1
-    labels[lv_inner] = 2
-    labels[rv] = 3
+    image = normalize_image(image_volume[:, :, z_index])
+    label = (label_volume[:, :, z_index] > 0).astype(np.uint8)
+    image, label = crop_to_foreground(image, label)
 
-    colors = {
-        1: np.array([0.95, 0.18, 0.22, 0.58]),
-        2: np.array([1.0, 0.75, 0.16, 0.52]),
-        3: np.array([0.20, 0.55, 0.95, 0.55]),
-    }
-    overlay = np.dstack([image, image, image, np.ones_like(image)])
-    for label, color in colors.items():
-        mask = labels == label
-        overlay[mask, :3] = overlay[mask, :3] * (1 - color[3]) + color[:3] * color[3]
+    overlay = np.dstack([image, image, image])
+    red = np.array([0.95, 0.18, 0.18])
+    mask = label > 0
+    overlay[mask] = overlay[mask] * 0.45 + red * 0.55
 
     fig, axes = plt.subplots(1, 3, figsize=(10.8, 3.6), dpi=180)
-    titles = ["Synthetic CMR-like slice", "Privacy-safe labels", "Overlay example"]
-    axes[0].imshow(image, cmap="gray", vmin=0, vmax=1)
-    axes[1].imshow(labels, cmap="viridis", vmin=0, vmax=3)
-    axes[2].imshow(overlay)
+    titles = ["Public MSD Cardiac MRI", "Left atrium label", "Label overlay"]
+    axes[0].imshow(image.T, cmap="gray", origin="lower", vmin=0, vmax=1)
+    axes[1].imshow(label.T, cmap="Reds", origin="lower", vmin=0, vmax=1)
+    axes[2].imshow(np.transpose(overlay, (1, 0, 2)), origin="lower")
     for ax, title in zip(axes, titles):
         ax.set_title(title, fontsize=10, color="#173244")
         ax.set_xticks([])
@@ -203,7 +217,7 @@ def create_overlay() -> None:
             spine.set_visible(False)
     fig.patch.set_facecolor("#fbfcfd")
     plt.tight_layout(pad=1.4)
-    fig.savefig(ASSET_DIR / "synthetic_overlay_example.png", bbox_inches="tight")
+    fig.savefig(ASSET_DIR / "msd_cardiac_overlay_example.png", bbox_inches="tight")
     plt.close(fig)
 
 

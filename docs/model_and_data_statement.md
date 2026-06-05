@@ -8,6 +8,8 @@ The repository does not distribute private clinical data, DICOM files, NIfTI fil
 
 Public examples should use public datasets with clear redistribution and citation terms. Private-data workflows should keep all raw images, annotations, source manifests, and model artifacts outside Git.
 
+README preview images may use derived visualizations from public datasets when the source license permits reuse and the dataset is cited. They should never use private clinical images.
+
 ## Pseudo-Labels
 
 Some workflows can prepare nnU-Net datasets from locally generated pseudo-labels, such as CorSeg segmentation outputs. These pseudo-labels are useful for pipeline development and weak-supervision experiments, but they are not equivalent to manual expert annotations.

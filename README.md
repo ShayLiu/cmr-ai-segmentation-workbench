@@ -48,11 +48,11 @@ The project is not a clinical model and does not include private patient data, t
 
 ![Completed debug runs](docs/assets/debug_runs_summary.svg)
 
-## Synthetic Overlay Example
+## Public Dataset Overlay Example
 
-The image below is a generated, privacy-safe CMR-like example. It is not a patient scan.
+The image below uses a public Medical Segmentation Decathlon Cardiac sample. It is included only as a visual example of the segmentation workflow and is not private patient data.
 
-![Synthetic CMR overlay example](docs/assets/synthetic_overlay_example.png)
+![Public MSD Cardiac overlay example](docs/assets/msd_cardiac_overlay_example.png)
 
 ## Goals
 
@@ -171,3 +171,5 @@ This workbench builds around excellent open-source medical AI projects:
 - MONAI: https://github.com/Project-MONAI/MONAI
 - MedSAM: https://github.com/bowang-lab/MedSAM
 - TorchIO: https://github.com/TorchIO-project/torchio
+
+The public overlay preview uses a derived visualization from the Medical Segmentation Decathlon Cardiac dataset. Please cite the MSD paper when using that dataset.
