@@ -12,6 +12,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
+from scipy import ndimage
+from scipy.interpolate import splprep, splev
 from skimage import measure
 
 
@@ -44,12 +46,12 @@ def image_to_data_uri(image: np.ndarray, label: np.ndarray) -> str:
     import base64
     from io import BytesIO
 
-    overlay = np.dstack([image, image, image])
-    mask = label > 0
-    color = np.array([0.97, 0.28, 0.32])
-    overlay[mask] = overlay[mask] * 0.55 + color * 0.45
+    image_hi, mask_hi, contour_field = prepare_display_masks(image, label)
+    overlay = blend_overlay(image_hi, mask_hi)
+    overlay = np.clip(overlay, 0, 1)
     fig, ax = plt.subplots(figsize=(3.4, 2.5), dpi=120)
     ax.imshow(overlay, cmap="gray", vmin=0, vmax=1)
+    plot_smooth_contours(ax, contour_field, color="#fff0f2", linewidth=1.0, alpha=0.92)
     ax.set_axis_off()
     fig.subplots_adjust(0, 0, 1, 1)
     buf = BytesIO()
@@ -220,29 +222,63 @@ def crop_to_foreground(image: np.ndarray, label: np.ndarray, margin: int = 44) -
     return image[y0:y1, x0:x1], label[y0:y1, x0:x1]
 
 
+def prepare_display_masks(image: np.ndarray, label: np.ndarray, scale: int = 4) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    image_hi = ndimage.zoom(image, scale, order=3)
+    label_float = ndimage.zoom(label.astype(float), scale, order=1)
+    label_smooth = ndimage.gaussian_filter(label_float, sigma=1.15)
+    label_hi = label_float >= 0.5
+    contour_field = label_smooth
+    return image_hi, label_hi, contour_field
+
+
+def blend_overlay(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    overlay = np.dstack([image, image, image])
+    color = np.array([0.98, 0.33, 0.38])
+    overlay[mask] = overlay[mask] * 0.82 + color * 0.18
+    return np.clip(overlay, 0, 1)
+
+
+def smooth_contour(contour: np.ndarray, points: int = 500) -> np.ndarray:
+    if len(contour) < 8:
+        return contour
+    closed = np.vstack([contour, contour[0]])
+    # splprep expects x/y order. The smoothing is for display only.
+    try:
+        tck, _ = splprep([closed[:, 1], closed[:, 0]], s=len(closed) * 0.85, per=True)
+        u_new = np.linspace(0, 1, points)
+        x_new, y_new = splev(u_new, tck)
+        return np.column_stack([y_new, x_new])
+    except ValueError:
+        smoothed = ndimage.gaussian_filter1d(closed, sigma=1.8, axis=0, mode="wrap")
+        return smoothed
+
+
+def plot_smooth_contours(ax, contour_field: np.ndarray, **kwargs) -> None:
+    contours = measure.find_contours(contour_field, level=0.5)
+    contours = sorted(contours, key=len, reverse=True)
+    for contour in contours[:2]:
+        smooth = smooth_contour(contour)
+        ax.plot(smooth[:, 1], smooth[:, 0], **kwargs)
+
+
 def create_overlay() -> None:
     image, label = load_public_msd_slice()
-
-    overlay = np.dstack([image, image, image])
-    red = np.array([0.97, 0.28, 0.32])
-    mask = label > 0
-    overlay[mask] = overlay[mask] * 0.55 + red * 0.45
+    image_hi, mask_hi, contour_field = prepare_display_masks(image, label)
+    overlay = blend_overlay(image_hi, mask_hi)
 
     fig, axes = plt.subplots(1, 3, figsize=(12.8, 4.0), dpi=190)
     fig.patch.set_facecolor("#0b1521")
-    titles = ["MRI", "Contour", "Overlay"]
+    titles = ["MRI", "Boundary", "Subtle overlay"]
     for ax in axes:
         ax.set_facecolor("#0b1521")
-        ax.imshow(image, cmap="gray", vmin=0, vmax=1)
+        ax.imshow(image_hi, cmap="gray", vmin=0, vmax=1)
         ax.set_xticks([])
         ax.set_yticks([])
         for spine in ax.spines.values():
             spine.set_visible(False)
 
-    contours = measure.find_contours(label, level=0.5)
-    for contour in contours:
-        axes[1].plot(contour[:, 1], contour[:, 0], color="#ff5a64", linewidth=2.0)
-        axes[2].plot(contour[:, 1], contour[:, 0], color="#ffe1e4", linewidth=1.25, alpha=0.9)
+    plot_smooth_contours(axes[1], contour_field, color="#ff4f5f", linewidth=2.7, solid_capstyle="round")
+    plot_smooth_contours(axes[2], contour_field, color="#fff0f2", linewidth=1.9, alpha=0.98, solid_capstyle="round")
     axes[2].imshow(overlay)
 
     for ax, title in zip(axes, titles):
@@ -262,7 +298,7 @@ def create_overlay() -> None:
     fig.text(
         0.5,
         0.035,
-        "Public MSD Cardiac sample | left atrium segmentation preview | no private patient data",
+        "Public MSD Cardiac sample | smoothed boundary for visualization only | no private patient data",
         color="#b8cbd3",
         ha="center",
         fontsize=10,
