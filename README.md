@@ -72,6 +72,7 @@ Publication-grade SAX LV/RV figures should come from expert-labeled data or a pu
 - [Promotion kit](docs/promotion_kit.md)
 - [Launch plan](docs/launch_plan.md)
 - [Starter issues](docs/starter_issues.md)
+- [Local Xuhan ACDC setup](docs/local_xuhan_acdc.md)
 - [Changelog](CHANGELOG.md)
 - [Completed debug results](results/)
 
