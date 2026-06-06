@@ -42,7 +42,7 @@ This does not require private medical data.
 | Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
 | MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
 | CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
-| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 5-epoch CPU debug run completed |
+| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 25-epoch CPU debug run completed |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
 
@@ -88,7 +88,7 @@ The ACDC benchmark has now been downloaded locally and converted to nnU-Net form
 | 1 | Local tiny nnU-Net smoke test | Done |
 | 2 | Public MSD Cardiac debug training | Done |
 | 3 | Local CorSeg SAX pseudo-label debug training | Done |
-| 4 | nnU-Net v2 ACDC baseline training | 5-epoch CPU debug done |
+| 4 | nnU-Net v2 ACDC baseline training | 25-epoch CPU debug done |
 | 5 | Dice / HD95 evaluation script | Script ready |
 | 6 | Prediction visualization examples | Script ready |
 | 7 | MONAI baseline | Planned |
