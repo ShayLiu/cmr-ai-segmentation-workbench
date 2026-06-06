@@ -9,10 +9,12 @@ Reproducible cardiac MRI SAX segmentation workflows with public ACDC validation,
 
 ## Current Public Benchmark
 
-| ACDC fold 0 validation | RV | Myocardium | LV | Mean |
-|---|---:|---:|---:|---:|
-| Dice | 0.8579 | 0.8547 | 0.9093 | 0.8740 |
-| HD95 | 7.44 | 4.49 | 3.99 | 5.31 |
+| ACDC fold 0 validation | RV | Myocardium | LV |
+|---|---:|---:|---:|
+| Dice | 0.8579 | 0.8547 | 0.9093 |
+| HD95 | 7.44 | 4.49 | 3.99 |
+
+Mean Dice: `0.8740`; mean HD95: `5.31`.
 
 This is a 300-epoch CPU debug nnU-Net run with conservative anatomical postprocessing. It demonstrates an end-to-end public benchmark pipeline, not a clinical model or a state-of-the-art claim.
 
