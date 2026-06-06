@@ -19,6 +19,8 @@ patient001_frame01.nii.gz
 patient001_frame01_gt.nii.gz
 ```
 
+The current local mirror uses `patient001_sax_ed.nii.gz` and `patient001_sax_es.nii.gz` naming. The converter supports both this format and the original frame-number style.
+
 Set paths:
 
 ```bash

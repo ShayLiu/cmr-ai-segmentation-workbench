@@ -1,6 +1,6 @@
 # ACDC nnU-Net Baseline
 
-Status: ACDC conversion, evaluation, and visualization scripts are implemented; ACDC training not run yet.
+Status: ACDC downloaded, converted, verified, preprocessed, and tiny CPU debug training completed. Full GPU baseline training not run yet.
 
 ## Experiment
 
@@ -18,6 +18,8 @@ Status: ACDC conversion, evaluation, and visualization scripts are implemented; 
 | Left ventricle | TBD | TBD |
 | Mean | TBD | TBD |
 
+Tiny CPU debug training is not a performance estimate.
+
 ## Notes
 
 Local environment verification:
@@ -28,7 +30,48 @@ Local environment verification:
 - CPU training with `nnUNetTrainer_tiny_debug` completed successfully after running outside the restricted sandbox.
 - Tiny smoke-test mean validation Dice was `0.006632277081798084`, expectedly low because it only ran two training iterations.
 
-Record GPU, CUDA, PyTorch, nnU-Net version, training time, and common errors here after running on a normal terminal or GPU machine.
+Record GPU, CUDA, PyTorch, nnU-Net version, training time, and common errors here after running a full baseline on a GPU machine.
+
+## Local ACDC Debug Run
+
+- Dataset source: public ACDC mirror downloaded to the external Xuhan volume
+- Converted nnU-Net dataset: `Dataset001_ACDC`
+- Training frames: 300 SAX ED/ES frames
+- Labels:
+  - 1: right ventricle
+  - 2: myocardium
+  - 3: left ventricle
+- nnU-Net split: 240 training cases, 60 validation cases for fold 0
+- Configuration: 2D
+- Trainer: `nnUNetTrainer_tiny_debug`
+- Device: CPU
+- Epochs: 1
+- Training iterations per epoch: 1
+- Validation iterations per epoch: 1
+
+Tiny debug output:
+
+- `train_loss`: 2.1504
+- `val_loss`: 2.0800
+- Pseudo Dice by label: 0.0475, 0.0373, 0.1030
+- Mean pseudo Dice: 0.0626
+- Epoch time: 0.58 s
+
+Generated local artifacts:
+
+```text
+nnunet_workspace/raw/Dataset001_ACDC
+nnunet_workspace/preprocessed/Dataset001_ACDC
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/checkpoint_best.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/checkpoint_final.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/progress.png
+```
+
+Representative public benchmark label QC:
+
+![ACDC SAX expert label QC](../docs/assets/acdc_sax_expert_label_qc.png)
+
+Interpretation: the ACDC pipeline is now operational, but the debug trainer intentionally runs too briefly to produce a meaningful segmentation model. The next publishable milestone is a full 2D or 3D nnU-Net training run with held-out Dice and HD95.
 
 ## Available Scripts
 

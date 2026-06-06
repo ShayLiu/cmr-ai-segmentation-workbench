@@ -10,6 +10,14 @@ Expected ACDC layout:
     training/patient001/patient001_frame12_gt.nii.gz
     testing/patient101/patient101_frame01.nii.gz
 
+Hugging Face mirrors may instead use:
+
+  source/
+    train/patient001/patient001_sax_ed.nii.gz
+    train/patient001/patient001_sax_ed_gt.nii.gz
+    train/patient001/patient001_sax_es.nii.gz
+    train/patient001/patient001_sax_es_gt.nii.gz
+
 The script copies labeled frames to imagesTr/labelsTr and unlabeled frames to
 imagesTs. It does not modify image geometry or label values.
 """
@@ -26,7 +34,7 @@ from pathlib import Path
 import SimpleITK as sitk
 
 
-FRAME_RE = re.compile(r"^(patient\d+_frame\d+)\.nii(?:\.gz)?$")
+FRAME_RE = re.compile(r"^(patient\d+_(?:frame\d+|sax_(?:ed|es)))\.nii(?:\.gz)?$")
 
 
 @dataclass(frozen=True)
@@ -38,7 +46,9 @@ class AcdcCase:
 
 def find_acdc_cases(source: Path) -> list[AcdcCase]:
     cases: list[AcdcCase] = []
-    for image_path in sorted(source.rglob("patient*_frame*.nii*")):
+    for image_path in sorted(source.rglob("patient*.nii*")):
+        if image_path.name.startswith("._"):
+            continue
         if image_path.name.endswith("_gt.nii") or image_path.name.endswith("_gt.nii.gz"):
             continue
         match = FRAME_RE.match(image_path.name)

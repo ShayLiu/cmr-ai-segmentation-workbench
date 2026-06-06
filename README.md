@@ -42,7 +42,7 @@ This does not require private medical data.
 | Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
 | MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
 | CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
-| ACDC baseline | Public benchmark | Planned | Next major reproducibility milestone |
+| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, tiny CPU debug run completed |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
 
@@ -55,6 +55,10 @@ The local CorSeg SAX pseudo-label run proves that the data conversion and nnU-Ne
 ![SAX segmentation quality gate](docs/assets/segmentation_qc_gate.svg)
 
 Publication-grade SAX LV/RV figures should come from expert-labeled data or a public benchmark such as ACDC, with structure-wise Dice and HD95 reported before any visual showcase.
+
+The ACDC benchmark has now been downloaded locally and converted to nnU-Net format. The example below shows a public ACDC SAX expert label for RV, LV myocardium, and LV blood pool; it is a label-quality reference, not a model-performance claim.
+
+![ACDC SAX expert label QC](docs/assets/acdc_sax_expert_label_qc.png)
 
 ## Goals
 
@@ -84,7 +88,7 @@ Publication-grade SAX LV/RV figures should come from expert-labeled data or a pu
 | 1 | Local tiny nnU-Net smoke test | Done |
 | 2 | Public MSD Cardiac debug training | Done |
 | 3 | Local CorSeg SAX pseudo-label debug training | Done |
-| 4 | nnU-Net v2 ACDC baseline training | Planned |
+| 4 | nnU-Net v2 ACDC baseline training | Tiny CPU debug done |
 | 5 | Dice / HD95 evaluation script | Script ready |
 | 6 | Prediction visualization examples | Script ready |
 | 7 | MONAI baseline | Planned |
