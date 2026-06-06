@@ -1,25 +1,31 @@
 # CMR AI Segmentation Workbench
 
-![CMR AI Segmentation Workbench banner](docs/assets/cmr_workbench_banner.svg)
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](requirements.txt)
 [![nnU-Net](https://img.shields.io/badge/nnU--Net-v2-informational.svg)](https://github.com/MIC-DKFZ/nnUNet)
 [![Medical Data](https://img.shields.io/badge/private%20data-not%20included-critical.svg)](docs/model_and_data_statement.md)
 
-An open, privacy-conscious, reproducible workbench for cardiac MRI segmentation research.
+Reproducible cardiac MRI SAX segmentation workflows with public ACDC validation, Dice/HD95 reporting, QC overlays, and failure-mode analysis.
 
-This project is designed for medical researchers, students, and engineers who want to train, evaluate, and document cardiac MRI segmentation models with reproducible workflows.
+## Current Public Benchmark
 
-The first milestones use nnU-Net v2 for synthetic smoke tests, public cardiac MRI debug runs, and local pseudo-label workflows. Later milestones add ACDC baselines, MONAI, MedSAM, visualization, metrics, and paper-ready outputs.
+| ACDC fold 0 validation | RV | Myocardium | LV | Mean |
+|---|---:|---:|---:|---:|
+| Dice | 0.8579 | 0.8547 | 0.9093 | 0.8740 |
+| HD95 | 7.44 | 4.49 | 3.99 | 5.31 |
 
-![Workflow overview](docs/assets/workflow_overview.svg)
+This is a 300-epoch CPU debug nnU-Net run with conservative anatomical postprocessing. It demonstrates an end-to-end public benchmark pipeline, not a clinical model or a state-of-the-art claim.
 
-## Why This Exists
+![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
 
-Cardiac MRI AI projects often spend more time on data formatting, DICOM/NIfTI conversion, nnU-Net folder structure, privacy checks, and result documentation than on the model itself.
+## What This Repo Provides
 
-This repository aims to make that workflow explicit, teachable, and reusable.
+- ACDC conversion, nnU-Net training, prediction, postprocessing, and evaluation scripts.
+- Structure-wise Dice and HD95 metrics with full per-case validation output.
+- Real QC overlays and representative failure cases, not polished synthetic examples.
+- Privacy-conscious boundaries: no private patient data, checkpoints, DICOM files, or NIfTI files are included.
+
+![CMR AI Segmentation Workbench banner](docs/assets/cmr_workbench_banner.svg)
 
 ## What You Can Do in 5 Minutes
 
@@ -35,7 +41,7 @@ python scripts/create_tiny_nnunet_dataset.py \
 
 This does not require private medical data.
 
-## Current Status
+## Workflow Status
 
 | Workflow | Dataset type | Status | Notes |
 |---|---|---|---|
@@ -45,6 +51,8 @@ This does not require private medical data.
 | ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 300-epoch CPU debug run completed with fold 0 validation metrics and failure analysis |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
+
+![Workflow overview](docs/assets/workflow_overview.svg)
 
 ![Completed debug runs](docs/assets/debug_runs_summary.svg)
 
@@ -59,15 +67,6 @@ Publication-grade SAX LV/RV figures should come from expert-labeled data or a pu
 The ACDC benchmark has now been downloaded locally and converted to nnU-Net format. The example below shows a public ACDC SAX expert label for RV, LV myocardium, and LV blood pool; it is a label-quality reference, not a model-performance claim.
 
 ![ACDC SAX expert label QC](docs/assets/acdc_sax_expert_label_qc.png)
-
-The current CPU-only debug model was trained for 300 shortened epochs, cleaned with conservative anatomical postprocessing, and evaluated on the full ACDC fold 0 validation split. It is useful as an end-to-end reproducibility check, not as a clinical or state-of-the-art result.
-
-| Fold 0 validation | RV | Myocardium | LV |
-|---|---:|---:|---:|
-| Dice | 0.8579 | 0.8547 | 0.9093 |
-| HD95 | 7.44 | 4.49 | 3.99 |
-
-![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
 
 The postprocessing grid showed only a small gain over 3D connected-component cleanup alone. Remaining failures are mostly small-cavity end-systolic frames and basal/apical slice-existence errors, which should be addressed with full GPU training, 3D/temporal context, and prespecified external validation rather than manual visual polishing.
 
