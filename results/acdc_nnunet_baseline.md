@@ -1,6 +1,6 @@
 # ACDC nnU-Net Baseline
 
-Status: ACDC downloaded, converted, verified, preprocessed, and tiny CPU debug training completed. Full GPU baseline training not run yet.
+Status: ACDC downloaded, converted, verified, preprocessed, and 5-epoch CPU debug training completed. Full GPU baseline training not run yet.
 
 ## Experiment
 
@@ -32,7 +32,7 @@ Local environment verification:
 
 Record GPU, CUDA, PyTorch, nnU-Net version, training time, and common errors here after running a full baseline on a GPU machine.
 
-## Local ACDC Debug Run
+## Local ACDC Debug Runs
 
 - Dataset source: public ACDC mirror downloaded to the external Xuhan volume
 - Converted nnU-Net dataset: `Dataset001_ACDC`
@@ -57,6 +57,19 @@ Tiny debug output:
 - Mean pseudo Dice: 0.0626
 - Epoch time: 0.58 s
 
+CPU debug 5-epoch run:
+
+- Trainer: `nnUNetTrainer_cpu_debug_5epochs`
+- Device: CPU
+- Epochs: 5
+- Training iterations per epoch: 5
+- Validation iterations per epoch: 2
+- Final `train_loss`: 0.4120
+- Final `val_loss`: 0.3285
+- Final pseudo Dice by label: 0.1098, 0.0033, 0.2345
+- Best EMA pseudo Dice: 0.1425
+- Final epoch time: 2.22 s
+
 Generated local artifacts:
 
 ```text
@@ -65,6 +78,9 @@ nnunet_workspace/preprocessed/Dataset001_ACDC
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/checkpoint_best.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/checkpoint_final.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_tiny_debug__nnUNetPlans__2d/fold_0/progress.png
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_5epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_5epochs__nnUNetPlans__2d/fold_0/checkpoint_final.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_5epochs__nnUNetPlans__2d/fold_0/progress.png
 ```
 
 Representative public benchmark label QC:
