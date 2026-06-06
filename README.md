@@ -42,7 +42,7 @@ This does not require private medical data.
 | Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
 | MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
 | CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
-| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 300-epoch CPU debug run completed with fold 0 validation metrics |
+| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 300-epoch CPU debug run completed with fold 0 validation metrics and failure analysis |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
 
@@ -60,14 +60,18 @@ The ACDC benchmark has now been downloaded locally and converted to nnU-Net form
 
 ![ACDC SAX expert label QC](docs/assets/acdc_sax_expert_label_qc.png)
 
-The current CPU-only debug model was trained for 300 shortened epochs, cleaned with conservative connected-component postprocessing, and evaluated on the full ACDC fold 0 validation split. It is useful as an end-to-end reproducibility check, not as a clinical or state-of-the-art result.
+The current CPU-only debug model was trained for 300 shortened epochs, cleaned with conservative anatomical postprocessing, and evaluated on the full ACDC fold 0 validation split. It is useful as an end-to-end reproducibility check, not as a clinical or state-of-the-art result.
 
 | Fold 0 validation | RV | Myocardium | LV |
 |---|---:|---:|---:|
-| Dice | 0.8561 | 0.8546 | 0.9089 |
-| HD95 | 7.46 | 4.52 | 3.97 |
+| Dice | 0.8579 | 0.8547 | 0.9093 |
+| HD95 | 7.44 | 4.49 | 3.99 |
 
 ![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
+
+The postprocessing grid showed only a small gain over 3D connected-component cleanup alone. Remaining failures are mostly small-cavity end-systolic frames and basal/apical slice-existence errors, which should be addressed with full GPU training, 3D/temporal context, and prespecified external validation rather than manual visual polishing.
+
+![ACDC failure case patient034 SAX ES](docs/assets/acdc_failure_patient034_sax_es.png)
 
 ## Goals
 

@@ -13,12 +13,12 @@ Status: ACDC downloaded, converted, verified, preprocessed, trained with a 300-e
 
 | Structure | Dice | HD95 |
 |---|---:|---:|
-| Right ventricle | 0.8561 | 7.46 |
-| Myocardium | 0.8546 | 4.52 |
-| Left ventricle | 0.9089 | 3.97 |
-| Mean | 0.8732 | 5.32 |
+| Right ventricle | 0.8579 | 7.44 |
+| Myocardium | 0.8547 | 4.49 |
+| Left ventricle | 0.9093 | 3.99 |
+| Mean | 0.8740 | 5.31 |
 
-These are CPU debug metrics from a deliberately shortened trainer with 20 training iterations per epoch, 6 validation iterations per epoch, and conservative connected-component postprocessing. They validate the pipeline, but they are not a full nnU-Net benchmark result.
+These are CPU debug metrics from a deliberately shortened trainer with 20 training iterations per epoch, 6 validation iterations per epoch, and conservative anatomical postprocessing. They validate the pipeline, but they are not a full nnU-Net benchmark result.
 
 ## Notes
 
@@ -114,7 +114,7 @@ Fold 0 validation inference:
 - Checkpoint: `checkpoint_best.pth`
 - Validation cases: 60
 - Raw prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_300epochs`
-- Postprocessed prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_300epochs_pp`
+- Postprocessed prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_300epochs_pp_slice_lcc`
 - Raw metrics: [`acdc_300epoch_fold0_val_metrics.md`](acdc_300epoch_fold0_val_metrics.md)
 - Postprocessed metrics: [`acdc_300epoch_fold0_val_metrics_postprocessed.md`](acdc_300epoch_fold0_val_metrics_postprocessed.md)
 - Representative validation QC: `patient116_sax_ed`
@@ -122,8 +122,19 @@ Fold 0 validation inference:
 Postprocessing:
 
 - Script: [`postprocess_segmentation.py`](../scripts/postprocess_segmentation.py)
-- Rule: keep the largest connected component per structure and drop tiny components below 64 voxels.
+- Selected rule: keep the largest 3D connected component per structure, keep only the largest component on each SAX slice, drop slices below 2% of the case-level peak label area, and drop tiny components below 64 voxels.
 - Rationale: reduces anatomically implausible remote fragments without altering the learned cardiac contours manually.
+
+Postprocessing grid:
+
+| Variant | Mean Dice | Mean HD95 | Note |
+|---|---:|---:|---|
+| 3D LCC only | 0.8732 | 5.32 | Previous conservative cleanup |
+| 3D LCC + per-slice LCC | 0.8740 | 5.30 | Similar Dice; slightly lower HD95 |
+| 3D LCC + per-slice LCC + 2% area filter | 0.8740 | 5.31 | Selected for slightly better tail cleanup |
+| Area filter >= 10% | 0.8729 | 5.53 | Over-prunes basal/apical slices |
+
+Interpretation: the grid suggests that most remaining error is not small remote fragments. The hard cases involve small end-systolic cavities, RV shape ambiguity, and basal/apical slice-existence mistakes, so the next meaningful improvement should come from full GPU training and better spatial/temporal context rather than increasingly aggressive postprocessing.
 
 Generated local artifacts:
 
@@ -154,6 +165,12 @@ Representative public benchmark label QC:
 Representative fold 0 validation prediction QC:
 
 ![ACDC 300-epoch validation prediction QC](../docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
+
+Representative failure analysis:
+
+![ACDC failure patient034 SAX ES](../docs/assets/acdc_failure_patient034_sax_es.png)
+
+See [`acdc_failure_analysis.md`](acdc_failure_analysis.md) for tail cases and reviewer-facing interpretation.
 
 Interpretation: the ACDC pipeline is now operational and can produce real held-out validation predictions with substantially cleaner SAX contours than the earlier CPU debug run. The current CPU debug result is acceptable for demonstrating reproducibility, but the next publishable milestone is a full 2D or 3D nnU-Net training run on a CUDA GPU with standard training length, fold aggregation, and held-out Dice/HD95.
 

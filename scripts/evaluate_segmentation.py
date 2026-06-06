@@ -103,7 +103,11 @@ def summarize(rows: list[dict[str, object]], labels: dict[int, str]) -> list[dic
 def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["case", "label_value", "label_name", "dice", "hd95"])
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=["case", "label_value", "label_name", "dice", "hd95"],
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
 
