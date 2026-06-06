@@ -7,145 +7,56 @@
 
 Reproducible cardiac MRI SAX segmentation workflows with public ACDC validation, Dice/HD95 reporting, QC overlays, and failure-mode analysis.
 
-## Current Public Benchmark
+![CMR AI Segmentation Workbench share card](docs/assets/x_share_card_acdc_cmr.png)
 
-| ACDC fold 0 validation | RV | Myocardium | LV |
+## Current Benchmark Snapshot
+
+Public ACDC fold 0 validation, nnU-Net v2 2D CPU debug run, conservative anatomical postprocessing.
+
+| ACDC fold 0 | RV | Myocardium | LV |
 |---|---:|---:|---:|
 | Dice | 0.8579 | 0.8547 | 0.9093 |
 | HD95 | 7.44 | 4.49 | 3.99 |
 
 Mean Dice: `0.8740`; mean HD95: `5.31`.
 
-This is a 300-epoch CPU debug nnU-Net run with conservative anatomical postprocessing. It demonstrates an end-to-end public benchmark pipeline, not a clinical model or a state-of-the-art claim.
+This is a reproducibility milestone, not a clinical model or state-of-the-art claim. The next performance milestone is full GPU nnU-Net training with broader validation.
 
-![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
+## What Is Included
 
-## What This Repo Provides
+| Area | Included artifacts |
+|---|---|
+| Data preparation | ACDC, MSD Cardiac debug, local CorSeg pseudo-label converters |
+| Training workflow | nnU-Net shell wrappers and local debug trainer installer |
+| Evaluation | Dice/HD95 CSV and Markdown reports |
+| QC visualization | Expert-label, prediction, and failure-case overlays |
+| Research hygiene | Privacy statement, release checklist, launch notes, starter issues |
 
-- ACDC conversion, nnU-Net training, prediction, postprocessing, and evaluation scripts.
-- Structure-wise Dice and HD95 metrics with full per-case validation output.
-- Real QC overlays and representative failure cases, not polished synthetic examples.
-- Privacy-conscious boundaries: no private patient data, checkpoints, DICOM files, or NIfTI files are included.
+The repository does not include private patient data, DICOM files, NIfTI files, trained checkpoints, or private source manifests.
 
-![CMR AI Segmentation Workbench banner](docs/assets/cmr_workbench_banner.svg)
+## Quick Start
 
-## What You Can Do in 5 Minutes
-
-Create a tiny privacy-safe nnU-Net-style dataset and verify the project structure:
+Install the lightweight project dependencies:
 
 ```bash
 pip install -r requirements.txt
-python scripts/create_tiny_nnunet_dataset.py \
-  --output /tmp/nnunet_raw \
-  --dataset-id 901 \
-  --num-training 5
+python scripts/install_tiny_debug_trainer.py
 ```
 
-This does not require private medical data.
-
-## Workflow Status
-
-| Workflow | Dataset type | Status | Notes |
-|---|---|---|---|
-| Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
-| MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
-| CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
-| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 300-epoch CPU debug run completed with fold 0 validation metrics and failure analysis |
-
-The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
-
-![Workflow overview](docs/assets/workflow_overview.svg)
-
-![Completed debug runs](docs/assets/debug_runs_summary.svg)
-
-## SAX Segmentation QC
-
-The local CorSeg SAX pseudo-label run proves that the data conversion and nnU-Net workflow can run end to end, but its boundaries are not accurate enough to present as a segmentation result. This repository therefore treats pseudo-label output as a quality-control and workflow-validation artifact only.
-
-![SAX segmentation quality gate](docs/assets/segmentation_qc_gate.svg)
-
-Publication-grade SAX LV/RV figures should come from expert-labeled data or a public benchmark such as ACDC, with structure-wise Dice and HD95 reported before any visual showcase.
-
-The ACDC benchmark has now been downloaded locally and converted to nnU-Net format. The example below shows a public ACDC SAX expert label for RV, LV myocardium, and LV blood pool; it is a label-quality reference, not a model-performance claim.
-
-![ACDC SAX expert label QC](docs/assets/acdc_sax_expert_label_qc.png)
-
-The postprocessing grid showed only a small gain over 3D connected-component cleanup alone. Remaining failures are mostly small-cavity end-systolic frames and basal/apical slice-existence errors, which should be addressed with full GPU training, 3D/temporal context, and prespecified external validation rather than manual visual polishing.
-
-![ACDC failure case patient034 SAX ES](docs/assets/acdc_failure_patient034_sax_es.png)
-
-## Goals
-
-- Reproduce a strong cardiac MRI segmentation baseline with nnU-Net v2.
-- Provide clean scripts for data preparation, training, prediction, and evaluation.
-- Make medical imaging AI workflows easier for clinical researchers to understand and repeat.
-- Document common problems in DICOM/NIfTI conversion, dataset formatting, GPU setup, and segmentation evaluation.
-
-## Quick Links
-
-- [Quickstart](docs/quickstart.md)
-- [Data format guide](docs/data_format.md)
-- [Model and data statement](docs/model_and_data_statement.md)
-- [Release checklist](docs/release_checklist.md)
-- [Promotion kit](docs/promotion_kit.md)
-- [Launch plan](docs/launch_plan.md)
-- [Starter issues](docs/starter_issues.md)
-- [Local Xuhan ACDC setup](docs/local_xuhan_acdc.md)
-- [Changelog](CHANGELOG.md)
-- [Completed debug results](results/)
-
-## Roadmap
-
-| Stage | Goal | Status |
-|---|---|---|
-| 0 | Project scaffold and documentation | In progress |
-| 1 | Local tiny nnU-Net smoke test | Done |
-| 2 | Public MSD Cardiac debug training | Done |
-| 3 | Local CorSeg SAX pseudo-label debug training | Done |
-| 4 | nnU-Net v2 ACDC baseline training | 300-epoch CPU debug done |
-| 5 | Dice / HD95 evaluation script | Fold 0 debug metrics generated |
-| 6 | Prediction visualization examples | Fold 0 validation QC generated |
-| 7 | MONAI baseline | Planned |
-| 8 | MedSAM adaptation example | Planned |
-| 9 | CMR research template for papers | Planned |
-
-## Recommended First Experiment
-
-Use ACDC cardiac MRI data with nnU-Net v2.
-
-```bash
-conda create -n cmr-nnunet python=3.10 -y
-conda activate cmr-nnunet
-pip install nnunetv2
-```
-
-Set nnU-Net paths:
-
-```bash
-export nnUNet_raw=/path/to/nnUNet_raw
-export nnUNet_preprocessed=/path/to/nnUNet_preprocessed
-export nnUNet_results=/path/to/nnUNet_results
-```
-
-Prepare and train:
+Prepare public ACDC data in nnU-Net format:
 
 ```bash
 python scripts/prepare_acdc.py \
   --source /path/to/acdc_raw \
   --output "$nnUNet_raw/Dataset001_ACDC"
+```
 
+Train, predict, evaluate, and render QC:
+
+```bash
 DATASET_ID=1 CONFIG=2d FOLD=0 DEVICE=cuda bash scripts/train_nnunet_acdc.sh
-```
+DATASET_ID=1 CONFIG=2d FOLD=0 bash scripts/predict_nnunet_acdc.sh
 
-Predict:
-
-```bash
-bash scripts/predict_nnunet_acdc.sh
-```
-
-Evaluate and create a QC overlay:
-
-```bash
 python scripts/evaluate_segmentation.py \
   --pred-dir predictions/acdc_nnunet_2d_fold0 \
   --label-dir "$nnUNet_raw/Dataset001_ACDC/labelsTr" \
@@ -159,52 +70,61 @@ python scripts/visualize_segmentation.py \
   --output results/figures/acdc_patient001_frame01_overlay.png
 ```
 
-## Repository Structure
+For a fuller setup walkthrough, see [docs/quickstart.md](docs/quickstart.md).
+
+## Results And QC
+
+Representative validation prediction:
+
+![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
+
+Representative failure case:
+
+![ACDC failure case patient034 SAX ES](docs/assets/acdc_failure_patient034_sax_es.png)
+
+Key result notes:
+
+- [ACDC nnU-Net baseline](results/acdc_nnunet_baseline.md)
+- [Postprocessed fold 0 metrics](results/acdc_300epoch_fold0_val_metrics_postprocessed.md)
+- [Failure analysis](results/acdc_failure_analysis.md)
+- [Tiny smoke test](results/tiny_smoke_test.md)
+- [MSD Cardiac debug run](results/msd_cardiac_debug.md)
+- [CorSeg SAX pseudo-label debug run](results/corseg_sax_pseudolabel_debug.md)
+
+## Project Map
 
 ```text
 cmr-ai-segmentation-workbench/
-├── README.md
-├── configs/
-├── docs/
-│   ├── data_format.md
-│   ├── medical_disclaimer.md
-│   └── roadmap_30_60_90.md
-├── examples/
-├── results/
-└── scripts/
-    ├── prepare_acdc.py
-    ├── evaluate_segmentation.py
-    ├── visualize_segmentation.py
-    ├── train_nnunet_acdc.sh
-    └── predict_nnunet_acdc.sh
+├── configs/                  # local environment examples
+├── docs/                     # data, privacy, launch, and troubleshooting docs
+├── docs/assets/              # derived PNG/SVG figures for README and sharing
+├── results/                  # metrics and result notes, no raw medical data
+├── scripts/                  # data preparation, evaluation, visualization, wrappers
+├── CHANGELOG.md
+├── CITATION.cff
+└── README.md
 ```
 
-## Important Notes
+## Roadmap
 
-- Do not upload identifiable patient DICOM files or private clinical data.
+| Priority | Milestone | Why it matters |
+|---|---|---|
+| 1 | Full GPU nnU-Net 2D ACDC baseline | Establish a fairer public benchmark |
+| 2 | MONAI ACDC baseline | Add an independent implementation path |
+| 3 | ED vs ES stratified reporting | Clarify small-cavity and phase-specific failure modes |
+| 4 | 3D full-resolution baseline | Test spatial context for basal/apical errors |
+| 5 | Paper-ready technical report | Convert workflow evidence into a citable research artifact |
+
+Open tracking issue: [Add minimal MONAI baseline](https://github.com/ShayLiu/cmr-ai-segmentation-workbench/issues/3). Community feedback request: [MONAI discussion #8899](https://github.com/Project-MONAI/MONAI/discussions/8899).
+
+## Responsible Use
+
 - Use public datasets for reproducible examples.
-- If private data is used, remove patient identifiers and follow institutional rules.
-- This project is for research and education only, not clinical diagnosis.
-- For real training, use a CUDA GPU workstation or cloud instance. The local Codex sandbox can verify preprocessing, but it may block PyTorch shared-memory training.
-- Before publishing, run the privacy and reproducibility checks in [docs/release_checklist.md](docs/release_checklist.md).
-- For accurate community posts and project descriptions, see [docs/promotion_kit.md](docs/promotion_kit.md).
+- Keep private DICOM, NIfTI, source manifests, and checkpoints outside Git.
+- Do not describe pseudo-label debug runs as expert-labeled model performance.
+- Do not use this project for diagnosis, treatment decisions, or regulated clinical deployment.
 
-## Local Verification
-
-The project includes a tiny synthetic dataset smoke test:
-
-```bash
-python scripts/create_tiny_nnunet_dataset.py --output "$nnUNet_raw" --dataset-id 901 --num-training 5
-nnUNetv2_plan_and_preprocess -d 901 -c 2d -npfp 1 -np 1 --verify_dataset_integrity --clean
-```
-
-See [docs/local_smoke_test.md](docs/local_smoke_test.md).
-
-Completed debug runs are documented in:
-
-- [results/tiny_smoke_test.md](results/tiny_smoke_test.md)
-- [results/msd_cardiac_debug.md](results/msd_cardiac_debug.md)
-- [results/corseg_sax_pseudolabel_debug.md](results/corseg_sax_pseudolabel_debug.md)
+See [docs/model_and_data_statement.md](docs/model_and_data_statement.md), [docs/medical_disclaimer.md](docs/medical_disclaimer.md), and [docs/release_checklist.md](docs/release_checklist.md).
 
 ## Acknowledgements
 
@@ -214,5 +134,3 @@ This workbench builds around excellent open-source medical AI projects:
 - MONAI: https://github.com/Project-MONAI/MONAI
 - MedSAM: https://github.com/bowang-lab/MedSAM
 - TorchIO: https://github.com/TorchIO-project/torchio
-
-The local SAX pseudo-label workflow is included to test conversion, preprocessing, training, and privacy boundaries. It should not be cited as evidence of model performance until expert-labeled validation is added.

@@ -194,4 +194,4 @@ python scripts/visualize_segmentation.py \
   --output results/figures/acdc_patient001_frame01_overlay.png
 ```
 
-The next publishable milestone is to train on ACDC and replace this placeholder table with held-out Dice and HD95 by structure.
+The next publishable milestone is a full GPU ACDC run with standard training length, fold aggregation, and held-out Dice/HD95 by structure.
