@@ -42,7 +42,7 @@ This does not require private medical data.
 | Tiny smoke test | Synthetic | Done | Verifies environment and nnU-Net formatting |
 | MSD Cardiac debug run | Public dataset | Done | Real public medical image debug training |
 | CorSeg SAX pseudo-label run | Private local workflow | Done | Privacy-preserving pseudo-label pipeline validation |
-| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 100-epoch CPU debug run completed with fold 0 validation metrics |
+| ACDC baseline | Public benchmark | In progress | Downloaded, converted, preprocessed, 300-epoch CPU debug run completed with fold 0 validation metrics |
 
 The project is not a clinical model and does not include private patient data, trained checkpoints, DICOM files, or NIfTI files.
 
@@ -60,14 +60,14 @@ The ACDC benchmark has now been downloaded locally and converted to nnU-Net form
 
 ![ACDC SAX expert label QC](docs/assets/acdc_sax_expert_label_qc.png)
 
-The current CPU-only debug model was trained for 100 short epochs and evaluated on the full ACDC fold 0 validation split. It is useful as an end-to-end reproducibility check, not as a clinical or state-of-the-art result.
+The current CPU-only debug model was trained for 300 shortened epochs, cleaned with conservative connected-component postprocessing, and evaluated on the full ACDC fold 0 validation split. It is useful as an end-to-end reproducibility check, not as a clinical or state-of-the-art result.
 
 | Fold 0 validation | RV | Myocardium | LV |
 |---|---:|---:|---:|
-| Dice | 0.6768 | 0.7414 | 0.8176 |
-| HD95 | 31.00 | 9.76 | 11.73 |
+| Dice | 0.8561 | 0.8546 | 0.9089 |
+| HD95 | 7.46 | 4.52 | 3.97 |
 
-![ACDC 100-epoch validation prediction QC](docs/assets/acdc_100epoch_val_prediction_qc.png)
+![ACDC 300-epoch validation prediction QC](docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
 
 ## Goals
 
@@ -97,7 +97,7 @@ The current CPU-only debug model was trained for 100 short epochs and evaluated 
 | 1 | Local tiny nnU-Net smoke test | Done |
 | 2 | Public MSD Cardiac debug training | Done |
 | 3 | Local CorSeg SAX pseudo-label debug training | Done |
-| 4 | nnU-Net v2 ACDC baseline training | 100-epoch CPU debug done |
+| 4 | nnU-Net v2 ACDC baseline training | 300-epoch CPU debug done |
 | 5 | Dice / HD95 evaluation script | Fold 0 debug metrics generated |
 | 6 | Prediction visualization examples | Fold 0 validation QC generated |
 | 7 | MONAI baseline | Planned |

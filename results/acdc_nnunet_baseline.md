@@ -1,6 +1,6 @@
 # ACDC nnU-Net Baseline
 
-Status: ACDC downloaded, converted, verified, preprocessed, trained with a 100-epoch CPU debug trainer, and evaluated on the full fold 0 validation split. Full GPU baseline training not run yet.
+Status: ACDC downloaded, converted, verified, preprocessed, trained with a 300-epoch CPU debug trainer, postprocessed, and evaluated on the full fold 0 validation split. Full GPU baseline training not run yet.
 
 ## Experiment
 
@@ -13,12 +13,12 @@ Status: ACDC downloaded, converted, verified, preprocessed, trained with a 100-e
 
 | Structure | Dice | HD95 |
 |---|---:|---:|
-| Right ventricle | 0.6768 | 31.00 |
-| Myocardium | 0.7414 | 9.76 |
-| Left ventricle | 0.8176 | 11.73 |
-| Mean | 0.7453 | 17.50 |
+| Right ventricle | 0.8561 | 7.46 |
+| Myocardium | 0.8546 | 4.52 |
+| Left ventricle | 0.9089 | 3.97 |
+| Mean | 0.8732 | 5.32 |
 
-These are CPU debug metrics from a deliberately shortened trainer with 10 training iterations per epoch and 3 validation iterations per epoch. They validate the pipeline, but they are not a full nnU-Net benchmark result.
+These are CPU debug metrics from a deliberately shortened trainer with 20 training iterations per epoch, 6 validation iterations per epoch, and conservative connected-component postprocessing. They validate the pipeline, but they are not a full nnU-Net benchmark result.
 
 ## Notes
 
@@ -96,13 +96,34 @@ CPU debug 100-epoch run:
 - Best EMA pseudo Dice: 0.7721
 - Final epoch time: 3.38 s
 
+CPU debug 300-epoch run:
+
+- Trainer: `nnUNetTrainer_cpu_debug_300epochs`
+- Device: CPU
+- Epochs: 300
+- Training iterations per epoch: 20
+- Validation iterations per epoch: 6
+- Final `train_loss`: -0.8226
+- Final `val_loss`: -0.7673
+- Final pseudo Dice by label: 0.8911, 0.8548, 0.9109
+- Best EMA pseudo Dice: 0.8972
+- Final epoch time: 9.10 s
+
 Fold 0 validation inference:
 
 - Checkpoint: `checkpoint_best.pth`
 - Validation cases: 60
-- Prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_100epochs`
-- Metrics: [`acdc_100epoch_fold0_val_metrics.md`](acdc_100epoch_fold0_val_metrics.md)
+- Raw prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_300epochs`
+- Postprocessed prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_300epochs_pp`
+- Raw metrics: [`acdc_300epoch_fold0_val_metrics.md`](acdc_300epoch_fold0_val_metrics.md)
+- Postprocessed metrics: [`acdc_300epoch_fold0_val_metrics_postprocessed.md`](acdc_300epoch_fold0_val_metrics_postprocessed.md)
 - Representative validation QC: `patient116_sax_ed`
+
+Postprocessing:
+
+- Script: [`postprocess_segmentation.py`](../scripts/postprocess_segmentation.py)
+- Rule: keep the largest connected component per structure and drop tiny components below 64 voxels.
+- Rationale: reduces anatomically implausible remote fragments without altering the learned cardiac contours manually.
 
 Generated local artifacts:
 
@@ -121,6 +142,9 @@ nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_25epochs__nnUNe
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/checkpoint_final.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/progress.png
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_300epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_300epochs__nnUNetPlans__2d/fold_0/checkpoint_final.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_300epochs__nnUNetPlans__2d/fold_0/progress.png
 ```
 
 Representative public benchmark label QC:
@@ -129,9 +153,9 @@ Representative public benchmark label QC:
 
 Representative fold 0 validation prediction QC:
 
-![ACDC 100-epoch validation prediction QC](../docs/assets/acdc_100epoch_val_prediction_qc.png)
+![ACDC 300-epoch validation prediction QC](../docs/assets/acdc_300epoch_val_prediction_qc_patient116.png)
 
-Interpretation: the ACDC pipeline is now operational and can produce real held-out validation predictions. The current CPU debug result is acceptable for demonstrating reproducibility, but the next publishable milestone is a full 2D or 3D nnU-Net training run on a CUDA GPU with standard training length, fold aggregation, and held-out Dice/HD95.
+Interpretation: the ACDC pipeline is now operational and can produce real held-out validation predictions with substantially cleaner SAX contours than the earlier CPU debug run. The current CPU debug result is acceptable for demonstrating reproducibility, but the next publishable milestone is a full 2D or 3D nnU-Net training run on a CUDA GPU with standard training length, fold aggregation, and held-out Dice/HD95.
 
 ## Available Scripts
 
