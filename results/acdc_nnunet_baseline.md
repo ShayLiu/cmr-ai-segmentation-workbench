@@ -1,6 +1,6 @@
 # ACDC nnU-Net Baseline
 
-Status: ACDC downloaded, converted, verified, preprocessed, and 25-epoch CPU debug training completed. Full GPU baseline training not run yet.
+Status: ACDC downloaded, converted, verified, preprocessed, trained with a 100-epoch CPU debug trainer, and evaluated on the full fold 0 validation split. Full GPU baseline training not run yet.
 
 ## Experiment
 
@@ -13,12 +13,12 @@ Status: ACDC downloaded, converted, verified, preprocessed, and 25-epoch CPU deb
 
 | Structure | Dice | HD95 |
 |---|---:|---:|
-| Right ventricle | TBD | TBD |
-| Myocardium | TBD | TBD |
-| Left ventricle | TBD | TBD |
-| Mean | TBD | TBD |
+| Right ventricle | 0.6768 | 31.00 |
+| Myocardium | 0.7414 | 9.76 |
+| Left ventricle | 0.8176 | 11.73 |
+| Mean | 0.7453 | 17.50 |
 
-Tiny CPU debug training is not a performance estimate.
+These are CPU debug metrics from a deliberately shortened trainer with 10 training iterations per epoch and 3 validation iterations per epoch. They validate the pipeline, but they are not a full nnU-Net benchmark result.
 
 ## Notes
 
@@ -83,6 +83,27 @@ CPU debug 25-epoch run:
 - Best EMA pseudo Dice: 0.4118
 - Final epoch time: 3.66 s
 
+CPU debug 100-epoch run:
+
+- Trainer: `nnUNetTrainer_cpu_debug_100epochs`
+- Device: CPU
+- Epochs: 100
+- Training iterations per epoch: 10
+- Validation iterations per epoch: 3
+- Final `train_loss`: -0.6041
+- Final `val_loss`: -0.5966
+- Final pseudo Dice by label: 0.8405, 0.7414, 0.8512
+- Best EMA pseudo Dice: 0.7721
+- Final epoch time: 3.38 s
+
+Fold 0 validation inference:
+
+- Checkpoint: `checkpoint_best.pth`
+- Validation cases: 60
+- Prediction output: local `/private/tmp/cmr_acdc_val_fold0_pred_100epochs`
+- Metrics: [`acdc_100epoch_fold0_val_metrics.md`](acdc_100epoch_fold0_val_metrics.md)
+- Representative validation QC: `patient116_sax_ed`
+
 Generated local artifacts:
 
 ```text
@@ -97,13 +118,20 @@ nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_5epochs__nnUNet
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_25epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_25epochs__nnUNetPlans__2d/fold_0/checkpoint_final.pth
 nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_25epochs__nnUNetPlans__2d/fold_0/progress.png
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/checkpoint_final.pth
+nnunet_workspace/results/Dataset001_ACDC/nnUNetTrainer_cpu_debug_100epochs__nnUNetPlans__2d/fold_0/progress.png
 ```
 
 Representative public benchmark label QC:
 
 ![ACDC SAX expert label QC](../docs/assets/acdc_sax_expert_label_qc.png)
 
-Interpretation: the ACDC pipeline is now operational, but the debug trainer intentionally runs too briefly to produce a meaningful segmentation model. The next publishable milestone is a full 2D or 3D nnU-Net training run with held-out Dice and HD95.
+Representative fold 0 validation prediction QC:
+
+![ACDC 100-epoch validation prediction QC](../docs/assets/acdc_100epoch_val_prediction_qc.png)
+
+Interpretation: the ACDC pipeline is now operational and can produce real held-out validation predictions. The current CPU debug result is acceptable for demonstrating reproducibility, but the next publishable milestone is a full 2D or 3D nnU-Net training run on a CUDA GPU with standard training length, fold aggregation, and held-out Dice/HD95.
 
 ## Available Scripts
 

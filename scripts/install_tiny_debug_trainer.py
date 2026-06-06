@@ -88,6 +88,33 @@ class nnUNetTrainer_cpu_debug_25epochs(nnUNetTrainer):
         return super().perform_actual_validation(save_probabilities)
 '''
 
+CPU_DEBUG_100EPOCHS_SOURCE = '''import os
+
+import torch
+
+from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
+
+
+class nnUNetTrainer_cpu_debug_100epochs(nnUNetTrainer):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 device: torch.device = torch.device("cuda")):
+        os.environ.setdefault("nnUNet_n_proc_DA", "0")
+        plans["configurations"][configuration]["batch_size"] = min(
+            int(plans["configurations"][configuration]["batch_size"]),
+            2,
+        )
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 100
+        self.num_iterations_per_epoch = 10
+        self.num_val_iterations_per_epoch = 3
+
+    def perform_actual_validation(self, save_probabilities: bool = False):
+        if self.device.type == "cpu":
+            self.print_to_log_file("Skipping full validation export in CPU debug trainer.")
+            return
+        return super().perform_actual_validation(save_probabilities)
+'''
+
 
 def main() -> None:
     spec = importlib.util.find_spec("nnunetv2")
@@ -113,6 +140,10 @@ def main() -> None:
     cpu_debug_25_target = target.with_name("nnUNetTrainer_cpu_debug_25epochs.py")
     cpu_debug_25_target.write_text(CPU_DEBUG_25EPOCHS_SOURCE, encoding="utf-8")
     print(f"Installed CPU debug trainer: {cpu_debug_25_target}")
+
+    cpu_debug_100_target = target.with_name("nnUNetTrainer_cpu_debug_100epochs.py")
+    cpu_debug_100_target.write_text(CPU_DEBUG_100EPOCHS_SOURCE, encoding="utf-8")
+    print(f"Installed CPU debug trainer: {cpu_debug_100_target}")
 
 
 if __name__ == "__main__":

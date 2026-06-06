@@ -79,7 +79,7 @@ def find_label_path(label_dir: Path, pred_path: Path) -> Path | None:
 
 
 def iter_prediction_files(pred_dir: Path) -> list[Path]:
-    return sorted(path for path in pred_dir.glob("*.nii*") if path.is_file())
+    return sorted(path for path in pred_dir.glob("*.nii*") if path.is_file() and not path.name.startswith("._"))
 
 
 def summarize(rows: list[dict[str, object]], labels: dict[int, str]) -> list[dict[str, object]]:
